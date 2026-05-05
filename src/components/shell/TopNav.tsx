@@ -3,13 +3,19 @@
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import type { PortfolioProfile } from "@/lib/portfolio";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+function useMounted() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
 
 export function TopNav({ profile }: { profile: PortfolioProfile }) {
   const { theme, setTheme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
 
   const resolvedTheme = mounted ? (theme === "system" ? systemTheme : theme) : "dark";
   const isDark = resolvedTheme !== "light";
