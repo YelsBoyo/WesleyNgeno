@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import type { PortfolioProfile } from "@/lib/portfolio";
 import { useSyncExternalStore } from "react";
 
 function useMounted() {
@@ -13,7 +12,7 @@ function useMounted() {
   );
 }
 
-export function TopNav({ profile }: { profile: PortfolioProfile }) {
+export function TopNav({ profile }: { profile: { name: string } }) {
   const { theme, setTheme, systemTheme } = useTheme();
   const mounted = useMounted();
 
@@ -36,7 +35,7 @@ export function TopNav({ profile }: { profile: PortfolioProfile }) {
             Projects
           </Link>
           <Link
-            href={profile.ctaPrimary.href}
+            href="#contact"
             className="hidden rounded-lg px-3 py-2 text-sm text-[var(--muted)] hover:text-white sm:inline-flex"
           >
             Contact

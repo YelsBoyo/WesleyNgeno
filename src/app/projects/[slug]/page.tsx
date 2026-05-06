@@ -1,14 +1,43 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPortfolio } from "@/lib/portfolio";
 
-export default function ProjectPage({
+type ProjectPageParams = { slug: string };
+
+export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
-}) {
+  params: ProjectPageParams | Promise<ProjectPageParams>;
+}): Promise<Metadata> {
+  const resolvedParams = await Promise.resolve(params);
   const portfolio = getPortfolio();
-  const project = portfolio.projects.find((p) => p.slug === params.slug);
+  const project = portfolio.projects.find((p) => p.slug === resolvedParams.slug);
+  if (!project) return {};
+
+  const title = project.seo?.title ?? `${project.name} case study`;
+  const description =
+    project.seo?.description ?? project.overview ?? project.tagline;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+    },
+  };
+}
+
+export default async function ProjectPage({
+  params,
+}: {
+  params: ProjectPageParams | Promise<ProjectPageParams>;
+}) {
+  const resolvedParams = await Promise.resolve(params);
+  const portfolio = getPortfolio();
+  const project = portfolio.projects.find((p) => p.slug === resolvedParams.slug);
   if (!project) return notFound();
 
   return (
@@ -25,9 +54,13 @@ export default function ProjectPage({
       </div>
 
       <header className="mt-6 rounded-3xl border border-white/10 bg-white/[0.04] p-8 backdrop-blur">
-        <div className="text-xs font-semibold text-white/60">{project.category}</div>
+        <div className="text-xs font-semibold text-white/60">
+          {project.category}
+          {project.year ? <span className="text-white/30"> · {project.year}</span> : null}
+        </div>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{project.name}</h1>
         <p className="mt-3 text-base leading-7 text-[var(--muted)]">{project.tagline}</p>
+        <p className="mt-4 text-sm leading-6 text-white/70">{project.overview}</p>
 
         <div className="mt-6 flex flex-wrap gap-2">
           {project.stack.map((s) => (
@@ -42,21 +75,33 @@ export default function ProjectPage({
       </header>
 
       <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {project.impact.map((i) => (
-          <div key={i.kpi} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <div className="text-2xl font-semibold tracking-tight">{i.value}</div>
-            <div className="mt-1 text-sm text-[var(--muted)]">{i.kpi}</div>
+        {project.outcomes.map((o) => (
+          <div key={o.label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <div className="text-2xl font-semibold tracking-tight">{o.value}</div>
+            <div className="mt-1 text-sm text-[var(--muted)]">{o.label}</div>
           </div>
         ))}
       </section>
 
       <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <h2 className="text-base font-semibold tracking-tight">What I built</h2>
+        <h2 className="text-base font-semibold tracking-tight">My role</h2>
         <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--muted)]">
-          {project.bullets.map((b) => (
-            <li key={b} className="flex gap-3">
+          {project.responsibilities.map((r) => (
+            <li key={r} className="flex gap-3">
               <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[var(--accent)]" />
-              <span>{b}</span>
+              <span>{r}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <h2 className="text-base font-semibold tracking-tight">Highlights</h2>
+        <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--muted)]">
+          {project.highlights.map((h) => (
+            <li key={h} className="flex gap-3">
+              <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[var(--accent-2)]" />
+              <span>{h}</span>
             </li>
           ))}
         </ul>
