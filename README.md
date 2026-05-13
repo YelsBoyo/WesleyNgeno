@@ -41,3 +41,5 @@ npm run start
 ## Optional hardening
 
 `next.config.ts` already sets a few security headers (nosniff, frame deny, etc.). If you add images or external embeds later, you may want to add a Content Security Policy as well.
+
+# Ngeno
